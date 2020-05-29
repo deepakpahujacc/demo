@@ -1,0 +1,180 @@
+<aura:component access="global" Controller="CustomMetadataTypesRecordController">
+    <aura:attribute name="record" type="sObject" description="record which is being displayed"/>
+    <aura:attribute name="field" type="Object" description="field object which is being rendered"/>
+    <aura:attribute name="objectname" type="string" description="object which is being rendered"/>
+    <aura:attribute name="cellValue" type="Object"/>
+    <aura:attribute name="cellLabel" type="String"/>
+    <aura:attribute name="isTextField" type="boolean" default="false"/>
+    <aura:attribute name="isNumberField" type="boolean" default="false"/>
+    <aura:attribute name="isReferenceField" type="boolean" default="false"/>
+    <aura:attribute name="isDateField" type="boolean" default="false"/>
+    <aura:attribute name="isDateTimeField" type="boolean" default="false"/>
+    <aura:attribute name="isCurrencyField" type="boolean" default="false"/>
+    <aura:attribute name="isIdField" type="boolean" default="false"/>
+    <aura:attribute name="isRequired" type="boolean" default="false"/>
+    <aura:attribute name="isDevelopername" type="boolean" default="false"/>
+    <aura:attribute name="ishidden" type="boolean" default="false"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="isEmailField" type="boolean" default="false"/>
+    <aura:attribute name="isCheckBoxField" type="boolean" default="false"/>
+    <aura:attribute name="isUrlField" type="boolean" default="false"/>
+    <aura:attribute name="isTextAreaLongField" type="boolean" default="false"/>
+    <aura:attribute name="isPhoneField" type="boolean" default="false"/>
+    <aura:attribute name="isPercentField" type="boolean" default="false"/>
+    <aura:attribute name="isPicklistField" type="boolean" default="false"/>
+    <aura:attribute name="selectedValue" type="String" />
+    <aura:attribute name="CustomMetapickList" type="string[]"/>
+    <aura:attribute name="options" type="List"/>
+    <aura:attribute name="lookupData" type="List"/>
+    <aura:attribute name="isPicklistFieldNull" type="boolean" default="false"/>
+    <aura:attribute name= "ReferncefieldValue" type="Object" />
+    <aura:attribute name="ReferncefieldValueNotNull" type="boolean" default="false"/>
+    <aura:attribute name="EditLookupfield" type="boolean" default="false"/>
+    <aura:attribute name="LookupListLenght" type="boolean" default="false"/>
+    <aura:attribute name="LookupList" type="object[]"/>
+    <aura:handler event="force:refreshView" action="{!c.handelookup}" />
+    <aura:attribute name="LookupId" type="String"/>
+    
+    
+    <aura:if isTrue="{!v.isTextField}">
+        <aura:if isTrue="{!v.isRequired}">
+            <aura:if isTrue="{!v.isDevelopername}">
+                <Lightning:input value="{!v.cellValue}" aura:id="fieldId" type="text" onchange="{!c.handelOnChange}" disabled="true"/>
+                <aura:set attribute="else">
+                    <Lightning:input aura:id="developerName" value="{!v.cellValue}" type="text" onchange="{!c.handelOnChange}" />
+                </aura:set>
+            </aura:if>
+            <aura:set attribute="else">
+                <Lightning:input value="{!v.cellValue}" type="text" onchange="{!c.handelOnChange}"/>
+            </aura:set>
+            
+        </aura:if>
+    </aura:if>
+    
+    <aura:if isTrue="{!v.ishidden}">
+        <ui:outputText value="{!v.cellValue}" />
+    </aura:if>
+    <aura:if isTrue="{!v.isIdField}">
+        <ui:outputText value="{!v.cellValue}" />
+    </aura:if>
+    <aura:if isTrue="{!v.isNumberField}">
+        <Lightning:input value="{!v.cellValue}" type="Number" onchange="{!c.handelOnChange}" />
+    </aura:if>
+    <aura:if isTrue="{!v.isDateField}">
+        <Lightning:input value="{!v.cellValue}" type="Date" onchange="{!c.handelOnChange}" />
+    </aura:if>
+    <aura:if isTrue="{!v.isDateTimeField}">
+        <Lightning:input value="{!v.cellValue}" type="DateTime" onchange="{!c.handelOnChange}" />
+    </aura:if>
+    <aura:if isTrue="{!v.isCurrencyField}">
+        <Lightning:input value="{!v.cellValue}" type="currency" onchange="{!c.handelOnChange}" />
+    </aura:if>
+    <aura:if isTrue="{!v.isEmailField}">
+        <Lightning:input value="{!v.cellValue}" type="Email" onchange="{!c.handelOnChange}" />
+    </aura:if>
+    <aura:if isTrue="{!v.isCheckBoxField}">
+        <Lightning:input checked="{!v.cellValue}" type="checkBox" onchange="{!c.handelOnChange}" />
+    </aura:if>
+    <aura:if isTrue="{!v.isUrlField}">
+        <Lightning:input value="{!v.cellValue}" type="url" onchange="{!c.handelOnChange}" />
+    </aura:if>
+    <aura:if isTrue="{!v.isTextAreaLongField}">
+        <Lightning:input value="{!v.cellValue}" type="textarea" onchange="{!c.handelOnChange}" />
+    </aura:if>
+    <aura:if isTrue="{!v.isPhoneField}">
+        <Lightning:input value="{!v.cellValue}" type="phone" onchange="{!c.handelOnChange}" />
+    </aura:if>
+    <aura:if isTrue="{!v.isPercentField}">
+        <Lightning:input value="{!v.cellValue}" type="percent" onchange="{!c.handelOnChange}" />
+    </aura:if>
+    <aura:if isTrue="{!v.isPicklistField}">
+        <aura:if isTrue="{!v.isPicklistFieldNull}">
+            <Lightning:input value="{!v.cellValue}" type="text" onclick="{!c.handelpicklist}" />
+            <aura:set attribute="else">
+                <lightning:select name="plkId" aura:id="pId" value="{!v.selectedValue}" onchange="{!c.handlepicklistchange}">
+                    <aura:iteration items="{!v.options}" var="option">
+                        <option text="{!option.label}" value="{!option.value}" selected="{!option.selected}"/>
+                    </aura:iteration>
+                </lightning:select>
+            </aura:set>
+        </aura:if>
+    </aura:if>
+    <aura:if isTrue="{!v.isReferenceField}">
+        <aura:if isTrue="{!v.ReferncefieldValueNotNull}">
+            <div class="slds-m-top_x-small">
+                <div class="slds-grid slds-gutters">
+                    <div class="slds-col">
+                        <span>
+                            <lightning:formattedUrl value="{!'/lightning/setup/CustomMetadata/page?address=%2F'+ v.ReferncefieldValue.Id}"
+                                                    label="{!v.ReferncefieldValue.Label}" target="_blank" hidden="{!v.ReferncefieldValue.Label==null}" />
+                        </span>
+                    </div>
+                    <div class="slds-col">
+                        <span>
+                            <lightning:buttonIcon iconName="utility:edit" size="x-small" alternativeText="Edit" title="Edit" onclick="{!c.handleLookupEdit}" />
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <aura:set attribute="else">
+                <div class="slds-m-top_x-small">
+                    <div class="slds-grid slds-gutters">
+                        <div class="slds-col">
+                            <span>
+                                
+                            </span>
+                        </div>
+                        <div class="slds-col">
+                            <span>
+                                <div class="slds-m-left_x-large">
+                                    <lightning:buttonIcon iconName="utility:edit" size="x-small" alternativeText="Edit" title="Edit" onclick="{!c.handleLookupEdit}" />
+                                </div>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </aura:set>
+        </aura:if>
+    </aura:if>
+    <aura:if isTrue="{!v.EditLookupfield}">
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <lightning:buttonIcon iconName="utility:close" onclick="{! c.closeModel }" alternativeText="close" variant="bare-inverse" class="slds-modal__close"/>
+                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Select Refernce Lookup Object</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <p>
+                        <b>
+                            <lightning:input aura:id="enter-search" name="enter-search" />
+                            <div class="slds-m-top_small">
+                                <div class="slds-clearfix">
+                                    <div class="slds-float_right">
+                                        <lightning:button label="Search " iconName="utility:search" onclick ="{! c.handleSearch}" />
+                                    </div>
+                                </div>
+                                <aura:if isTrue="{!v.LookupListLenght}">
+                                    <lightning:select aura:id="LookupPickList" value="{!v.LookupId}" onchange="{!c.handleLookupChangeOnChange}" required="true">
+                                        
+                                        <aura:iteration items="{!v.LookupList}" var="ind" indexVar="key">
+                                            <option value="{!key}">{!ind.Label}</option>
+                                        </aura:iteration>
+                                    </lightning:select>
+                                    <aura:set attribute="else">
+                                        <div class="slds-align_absolute-center" style="height:5rem">
+                                            <span class="slds-badge">Input Required keywords</span>
+                                        </div>
+                                    </aura:set>
+                                </aura:if>
+                            </div>
+                        </b>
+                    </p>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning:button variant="neutral" label="Cancel" title="Cancel" onclick="{! c.closeModel }"/>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </aura:if>
+</aura:component>

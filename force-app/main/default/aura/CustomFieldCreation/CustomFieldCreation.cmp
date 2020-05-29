@@ -1,0 +1,516 @@
+<aura:component controller="newFieldClass">
+    <aura:attribute name="isOpen" type="boolean" default="false"/>
+    <aura:attribute name="togglemain" type="boolean" default="true" />
+    <aura:attribute name="toggleCheckBox" type="boolean" />
+    <aura:attribute name="toggleText" type="boolean" />
+    <aura:attribute name="toggleEmail" type="boolean" />
+    <aura:attribute name="toggleCurrency" type="boolean" />
+    <aura:attribute name="toggleNumber" type="boolean" />
+    <aura:attribute name="toggleDate" type="boolean" />
+    <aura:attribute name="toggleDateTime" type="boolean" />
+    <aura:attribute name="togglePercent" type="boolean" />
+    <aura:attribute name="togglePhone" type="boolean" />
+    <aura:attribute name="togglePicklist" type="boolean" />
+    <aura:attribute name="toggleTime" type="boolean" />
+    <aura:attribute name="toggleUrl" type="boolean" />
+    <aura:attribute name="toggleLookup" type="boolean" />
+    <aura:attribute name="toggleANumber" type="boolean" />
+    <aura:attribute name="objlist" type="List"/>
+    <aura:attribute name="objselectedValue" type="String"/>
+    <aura:attribute name="objname" type="String"/>
+    
+    <aura:attribute name="method" type="Aura.action"/>
+    <aura:attribute name="radiusList" type="String[]" default="['Select an Option','Auto Number','Lookup Relationship','CheckBox',
+                                                               'Text','Email','Currency','Number','Date','Date/Time','Percent',
+                                                               'Phone','Picklist','Time','Url',]"/>
+    <aura:attribute name="options" type="List" default="[
+                                                        {'label': 'Checked', 'value': 'True'},
+                                                        {'label': 'Unchecked', 'value': 'False'}
+                                                        ]"/>
+    <aura:attribute name="value" type="String" default="False"/>
+    <aura:attribute name="requiredOptions" type="List" default="[{'label': 'True', 'value': 'True'}]"/>
+    <aura:attribute name="requiredValue" type="String"/>
+    <aura:attribute name="externalidOptions" type="List" default="[{'label': 'True', 'value': 'True'}]"/>
+    <aura:attribute name="externalidValue" type="String" />
+    <aura:attribute name="uniqueOptions" type="List" default="[{'label': 'True', 'value': 'True'}]"/>
+    <aura:attribute name="uniqueValue" type="String" />
+    <aura:attribute name="lable" type="String"/>
+    <aura:attribute name="name" type="String"/>
+    <aura:attribute name="length" type="integer"/>
+    <aura:attribute name="decimal" type="integer"/>
+    <aura:attribute name="pvalues" type="String"/>
+    <aura:attribute name="matchUnmatch" type="List"/>
+    <c:customToast aura:id="toastCmp"/>
+    <!--Use "slds-m-around_xx-large" class to add standard X-Large padding to the component--> 
+    <div class="slds-m-around_xx-large">
+        
+        <!-- <lightning:button variant="brand" label="New Field" title="New Field" onclick="{! c.openModel }" /> -->
+        <!--Use aura:if tag to display Model Box, on the bese of conditions. [isOpen boolean attribute] -->   
+        <aura:if isTrue="{!v.isOpen}">
+            
+            <!--###### MODAL BOX Start######--> 
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    
+                    <!-- ###### MODAL BOX HEADER Start ######-->
+                    <header class="slds-modal__header">
+                        <lightning:buttonIcon iconName="utility:close" onclick="{! c.closeModel }" alternativeText="close" variant="bare-inverse" class="slds-modal__close"/>
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">New Custom Field</h2>
+                    </header>
+                    
+                    <!--###### MODAL BOX BODY Part Start######-->
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <div >
+                            <Lightning:input label="OBJECT" value="{!v.objname}" aura:id="fieldId" type="text" disabled="true"/> 
+                        </div>
+                        <!--Picklist-->
+                        <div >
+                            <lightning:select aura:id="radiusPicklist" name="select" label="SELECT FIELD TYPE" onchange="{!c.selectValue}">
+                                <aura:iteration items="{!v.radiusList}" var="item">
+                                    <option>{!item}</option>
+                                </aura:iteration>
+                            </lightning:select>
+                        </div>
+                        <br/>
+                        <!--#####Table Part-->
+                        <!--####By Default-->
+                        <aura:if isTrue="{!v.togglemain}">
+                            <center>
+                                <br/>
+                                <lightning:badge label="Please Select Field Type"/>
+                            </center>
+                        </aura:if>
+                        <!--####CheckBox-->
+                        <aura:if isTrue="{!v.toggleCheckBox}">
+                            <!--Table Head-->
+                            <div class="slds-grid slds-grid_vertical">
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input name="Field Lable" value="{!v.lable}" required="true" aura:id="expenseform" label="FIELD LABEL"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col ">
+                                    <span>
+                                        <lightning:input name="Field Name" value="{!v.name}" required="true" aura:id="expenseform" label="FIELD NAME"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col ">
+                                    <span>
+                                        <lightning:radioGroup name="Default Value" options="{! v.options }" value="{! v.value }" type="radio" aura:id="expenseform" label="DEFAULT VALUE"/>
+                                    </span>
+                                </div>
+                            </div>
+                            <br/>
+                        </aura:if>
+                        <!--####Text-->
+                        <aura:if isTrue="{!v.toggleText}">
+                            <div class="slds-grid slds-grid_vertical">
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input name="Field Lable" value="{!v.lable}" required="true" aura:id="expenseform" label="FIELD LABEL"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input name="Field Name" value="{!v.name}" required="true" aura:id="expenseform" label="FIELD NAME"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input type="number" name="Length" value="{!v.length}" required="true" aura:id="expenseform" label="LENGTH"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:radioGroup name="Required Value" options="{!v.requiredOptions}" value="{!v.requiredValue}" type="radio" aura:id="expenseform" label="REQUIRED" />
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:radioGroup name="External ID" options="{!v.externalidOptions}" value="{!v.externalidValue}" type="radio" aura:id="expenseform" label="EXTERNAL ID" />
+                                    </span>
+                                </div>
+                            </div>
+                            <br/>
+                        </aura:if>
+                        <!--####Email-->
+                        <aura:if isTrue="{!v.toggleEmail}">
+                            <div class="slds-grid slds-grid_vertical">
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input name="Field Lable" value="{!v.lable}" required="true" aura:id="expenseform" label="FIELD LABEL"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input name="Field Name" value="{!v.name}" required="true" aura:id="expenseform" label="FIELD NAME"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:radioGroup name="Required Value" options="{! v.requiredOptions }" value="{! v.requiredValue }" type="radio" aura:id="expenseform" label="REQUIRED"/>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:radioGroup name="Unique Value" options="{! v.uniqueOptions }" value="{! v.uniqueValue }" type="radio" aura:id="expenseform" label="UNIQUE"/>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:radioGroup name="External ID" options="{!v.externalidOptions}" value="{!v.externalidValue}" type="radio" aura:id="expenseform" label="EXTERNAL ID"/>
+                                    </span>
+                                </div>
+                            </div>
+                            <br/>
+                        </aura:if>
+                        <!--####Currency-->
+                        <aura:if isTrue="{!v.toggleCurrency}">
+                            <div class="slds-grid slds-grid_vertical">
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input name="Field Lable" value="{!v.lable}" required="true" aura:id="expenseform" label="FIELD LABEL"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input name="Field Name" value="{!v.name}" required="true" aura:id="expenseform" label="FIELD NAME"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input type="number" name="length" value="{!v.length}" required="true" aura:id="expenseform" label="LENGTH">
+                                        </lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input type="number" name="Decimal Places" value="{!v.decimal}" required="true" aura:id="expenseform" label="DECIMAL PLACE">
+                                        </lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>REQUIRED
+                                        <lightning:radioGroup name="Required Value" options="{! v.requiredOptions }" value="{! v.requiredValue }" type="radio" aura:id="expenseform"/>
+                                    </span>
+                                </div>
+                            </div>
+                            <br/>
+                        </aura:if>
+                        <!--####Number-->
+                        <aura:if isTrue="{!v.toggleNumber}">
+                            <div class="slds-grid slds-grid_vertical">
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input name="Field Lable" value="{!v.lable}" required="true" aura:id="expenseform" label="FIELD LABEL"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input name="Field Name" value="{!v.name}" required="true" aura:id="expenseform" label="FIELD NAME"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input type="number" name="length" value="{!v.length}" required="true" aura:id="expenseform" label="LENGTH">
+                                        </lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input type="number" name="Decimal Places" value="{!v.decimal}" required="true" aura:id="expenseform" label="DECIMAL PLACE">
+                                        </lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:radioGroup name="Required Value" options="{! v.requiredOptions }" value="{! v.requiredValue }" type="radio" aura:id="expenseform" label="REQUIRED"/>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:radioGroup name="Unique Value" options="{! v.uniqueOptions }" value="{! v.uniqueValue }" type="radio" aura:id="expenseform" label="UIQUE"/>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:radioGroup name="External ID" options="{!v.externalidOptions}" value="{!v.externalidValue}" type="radio" aura:id="expenseform" label="EXTERNAL ID"/>
+                                    </span>
+                                </div>
+                            </div>
+                            <br/>
+                        </aura:if>
+                        <!--####Date-->
+                        <aura:if isTrue="{!v.toggleDate}">
+                            <div class="slds-grid slds-grid_vertical">
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input name="Field Lable" value="{!v.lable}" required="true" aura:id="expenseform" label="FIELD LABEL"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input name="Field Name" value="{!v.name}" required="true" aura:id="expenseform" label="FIELD NAME"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:radioGroup name="Required Value" options="{! v.requiredOptions }" value="{! v.requiredValue }" type="radio" aura:id="expenseform" label="REQUIRED"/>
+                                    </span>
+                                </div>
+                            </div>
+                            <br/>
+                        </aura:if>
+                        <!--####Date/Time-->
+                        <aura:if isTrue="{!v.toggleDateTime}">
+                            <div class="slds-grid slds-grid_vertical">
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input name="Field Lable" value="{!v.lable}" required="true" aura:id="expenseform" label="FIELD LABEL"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input name="Field Name" value="{!v.name}" required="true" aura:id="expenseform" label="FIELD NAME"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:radioGroup name="Required Value" options="{! v.requiredOptions }" value="{! v.requiredValue }" type="radio" aura:id="expenseform" label="REQUIRED"/>
+                                    </span>
+                                </div>
+                            </div>
+                            <br/>
+                        </aura:if>
+                        <!--####Percent-->
+                        <aura:if isTrue="{!v.togglePercent}">
+                            <div class="slds-grid slds-grid_vertical">
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input name="Field Lable" value="{!v.lable}" required="true" aura:id="expenseform" label="FIELD LABEL"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input name="Field Name" value="{!v.name}" required="true" aura:id="expenseform" label="FIELD NAME"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input type="number" name="length" value="{!v.length}" required="true" aura:id="expenseform" label="LENGTH">
+                                        </lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input type="number" name="Decimal Places" value="{!v.decimal}" required="true" aura:id="expenseform" label="DECIMAL PLACE">
+                                        </lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:radioGroup name="Required Value" options="{! v.requiredOptions }" value="{! v.requiredValue }" type="radio" aura:id="expenseform" label="REQUIRED"/>
+                                    </span>
+                                </div>
+                            </div>
+                            <br/>
+                        </aura:if>
+                        <!--####Phone-->
+                        <aura:if isTrue="{!v.togglePhone}">
+                            <div class="slds-grid slds-grid_vertical">
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input name="Field Lable" value="{!v.lable}" required="true" aura:id="expenseform" label="FIELD LABEL"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input name="Field Name" value="{!v.name}" required="true" aura:id="expenseform" label="FIELD NAME"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:radioGroup name="Required Value" options="{! v.requiredOptions }" value="{! v.requiredValue }" type="radio" aura:id="expenseform" label="REQUIRED"/>
+                                    </span>
+                                </div>
+                            </div>
+                            <br/>
+                        </aura:if>
+                        <!--####Picklist-->
+                        <aura:if isTrue="{!v.togglePicklist}">
+                            <div class="slds-grid slds-grid_vertical">
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input name="Field Lable" value="{!v.lable}" required="true" aura:id="expenseform" label="FIELD LABEL"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input name="Field Name" value="{!v.name}" required="true" aura:id="expenseform" label="FIELD NAME"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input name="Field Name" value="{!v.pvalues}" required="true" aura:id="expenseform" label="VALUES"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:radioGroup name="Required Value" options="{! v.requiredOptions }" value="{! v.requiredValue }" type="radio" aura:id="expenseform" label="REQUIRED"/>
+                                    </span>
+                                </div>
+                            </div>
+                            <br/>
+                        </aura:if>
+                        <!--####Time-->
+                        <aura:if isTrue="{!v.toggleTime}">
+                            <div class="slds-grid slds-grid_vertical">
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input name="Field Lable" value="{!v.lable}" required="true" aura:id="expenseform" label="FIELD LABEL"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input name="Field Name" value="{!v.name}" required="true" aura:id="expenseform" label="FIELD NAME"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:radioGroup name="Required Value" options="{! v.requiredOptions }" value="{! v.requiredValue }" type="radio" aura:id="expenseform" label="REQUIRED"/>
+                                    </span>
+                                </div>
+                            </div>
+                            <br/>
+                        </aura:if>
+                        <!--####Url-->
+                        <aura:if isTrue="{!v.toggleUrl}">
+                            <div class="slds-grid slds-grid_vertical">
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input name="Field Lable" value="{!v.lable}" required="true" aura:id="expenseform" label="FIELD LABEL"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input name="Field Name" value="{!v.name}" required="true" aura:id="expenseform" label="FIELD NAME"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:radioGroup name="Required Value" options="{! v.requiredOptions }" value="{! v.requiredValue }" type="radio" aura:id="expenseform" label="REQUIRED"/>
+                                    </span>
+                                </div>
+                            </div>
+                            <br/>
+                        </aura:if>
+                        <!--Lookup Relationship-->
+                        <aura:if isTrue="{!v.toggleLookup}">
+                            <div class="slds-grid slds-grid_vertical">
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:select aura:id="selectid" label="SELECT RELATED OBJECT" name="obj" value="{!v.objselectedValue}">
+                                            <option value="" text="Select an Option" />
+                                            <aura:iteration items="{!v.objlist}" var="var">
+                                                <option value="{!var}" text="{!var}"/> 
+                                            </aura:iteration>
+                                        </lightning:select>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input name="Field Lable" value="{!v.lable}" required="true" aura:id="expenseform" label="FIELD LABEL"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input name="Field Name" value="{!v.name}" required="true" aura:id="expenseform" label="FIELD NAME"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:radioGroup name="Required Value" options="{! v.requiredOptions }" value="{! v.requiredValue }" type="radio" aura:id="expenseform" label="REQUIRED"/>
+                                    </span>
+                                </div>
+                            </div>
+                            <br/>
+                        </aura:if>
+                        <!--Auto Number-->
+                        <aura:if isTrue="{!v.toggleANumber}">
+                            <div class="slds-grid slds-grid_vertical">
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input name="Field Lable" value="{!v.lable}" required="true" aura:id="expenseform" label="FIELD LABEL"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:input name="Field Name" value="{!v.name}" required="true" aura:id="expenseform" label="FIELD NAME"></lightning:input>
+                                    </span>
+                                </div>
+                                <br/>
+                                <div class="slds-col">
+                                    <span>
+                                        <lightning:radioGroup name="Required Value" options="{! v.requiredOptions }" value="{! v.requiredValue }" type="radio" aura:id="expenseform" label="REQUIRED"/>
+                                    </span>
+                                </div>
+                            </div>
+                            <br/>
+                        </aura:if>
+                    </div>
+                    <!--###### MODAL BOX FOOTER Part Start ######-->
+                    <footer class="slds-modal__footer">
+                        <center>
+                            <lightning:button variant="neutral" label="Cancel" title="Cancel" onclick="{! c.closeModel }"/>
+                            <lightning:button variant="brand" label="Save" title="Save" onclick="{! c.save }"/>
+                        </center>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+            <!--###### MODAL BOX Part END Here ######-->
+            
+        </aura:if>
+    </div>
+</aura:component>

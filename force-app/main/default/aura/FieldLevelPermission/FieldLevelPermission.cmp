@@ -1,0 +1,240 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes" access="global" controller="FieldLevelPermissionController">
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="objList" type="List"/>
+    <aura:attribute name="panelProfiles" type="Object[]"/>
+    <aura:attribute name="fieldsVisible" type="Boolean" default="false"/>
+    <aura:attribute name="noRecordsToShow" type="Boolean" default="false"/>
+    <aura:attribute name="dataVisible" type="Boolean" default="false"/>
+    <aura:attribute name="newAndShowProfiles" type="Boolean" default="true"/>
+    <aura:attribute name="arrowDown" type="Boolean" default="false"/>
+    <aura:attribute name="arrowUp" type="Boolean" default="true"/>
+    <aura:attribute name="wrapperList" type="WrapperClass[]"/>
+    <aura:attribute name='paginationList' type="WrapperClass[]"/>
+    <aura:attribute name="objselectedValue" type="String" default=""/>
+    <aura:attribute name="sortOrder" type="String" default="asc"/>
+    <aura:attribute name="panel" type="Boolean" default="false"/>
+    <aura:attribute name="spinner" type="Boolean" default="false"/>
+    <aura:attribute name="onLoadSpinner" type="Boolean" default="true"/>
+    <aura:attribute name="tableshow" type="Boolean" default="false"/>
+    <aura:attribute name='showModal' type='Boolean' default='false'/>
+    <aura:attribute name="pageNumber" type="Integer" default='1'/>
+    <aura:attribute name="sortNo" type="Integer" default='10'/>
+    <aura:attribute name="maxPage" type="Integer"/>
+    <aura:handler name="change" value="{!v.pageNumber}" action="{!c.onPagination}"/>
+    <!--<aura:attribute name="profileMap" type="Map" default="{'System Administrator':'Admin','Contract Manager':'ContractManager','Solution Manager':'SolutionManager','Read Only':'ReadOnly','Custom: Marketing Profile':'Custom%3A Marketing Profile',
+                                                             'Marketing User':'MarketingProfile','Custom: Sales Profile':'Custom%3A Sales Profile','Custom: Support Profile':'Custom%3A Support Profile','Standard User':'Standard'}"/>-->
+    
+		<aura:if isTrue="{!v.onLoadSpinner}">
+                <div aura:id="spinnerId" class="slds-spinner_container">
+                    <div class="slds-spinner--brand slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                        <span class="slds-assistive-text">Loading</span>
+                        <div class="slds-spinner__dot-a"></div>
+                        <div class="slds-spinner__dot-b"></div>
+                    </div>
+                </div>
+        </aura:if>
+        <div class="slds-page-header">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title">
+                    <div class="slds-media">
+                        <div class="slds-media__figure">
+                            <span class="slds-icon_container slds-icon-standard-opportunity">
+                                <lightning:icon iconName="standard:canvas"/>
+                            </span>
+                        </div>
+                        <div class="slds-media__body">
+                            <div class="slds-page-header__name">
+                                <div class="slds-page-header__name-title">
+                                    <h1>
+                                        <span class="slds-page-header__title slds-truncate">Field Level Permission</span>
+                                    </h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><br/>
+        
+        <aura:if isTrue="{!v.panel}">
+            <div class="slds-m-top_xx-large">
+                <div class="slds-panel slds-size_medium slds-panel_docked  slds-is-open " aria-hidden="false" style="position: absolute; height:500px; top:240px; right: 15px; z-index: 888;">
+                    <div class="slds-panel__header">
+                        <h2 class="slds-panel__header-title slds-text-heading_small" title="Panel Header">All Profiles</h2>
+                        <div class="my-custom-background">    
+                            <lightning:button iconName="utility:close"  variant="border-inverse" title="Close" onclick="{!c.handlePanelClose }"/>
+                        </div>    
+                    </div>
+                    <div class="slds-panel__body">
+                        <div class="slds-scrollable_y" style="width: 100%; height: 300px;">
+                            <aura:iteration items="{!v.panelProfiles}" var="pf">
+                                <lightning:layout horizontalAlign="left">
+                                    <lightning:input aura:id="checkbox" type="checkbox" checked="{!pf.checked}" name="{!pf.Name}" disabled="{!pf.disable}"/>
+                                    <div class="slds-truncate" title="{!pf.Name}">{!pf.Name}</div>
+                                </lightning:layout>   
+                            </aura:iteration>
+                        </div>
+                        <br/><lightning:layout horizontalAlign="center">
+                        <lightning:button variant="brand" title="Click To Save" label="Save"  onclick="{!c.panelButtonClick}"/>
+                        </lightning:layout>
+                    </div>
+                </div>
+            </div>
+        </aura:if>
+        <lightning:card>
+            <aura:if isTrue="{!v.spinner}">
+                <div aura:id="spinnerId" class="slds-spinner_container">
+                    <div class="slds-spinner--brand slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                        <span class="slds-assistive-text">Loading</span>
+                        <div class="slds-spinner__dot-a"></div>
+                        <div class="slds-spinner__dot-b"></div>
+                    </div>
+                </div>
+            </aura:if>
+            <div class ="slds-m-left_medium" style="width: 50%">
+                <lightning:select aura:id='selectObject'  name="selectObject" label="Select Object" required="true"  value="{!v.objselectedValue}" onchange="{!c.onValueChange}">
+                    <option value="-None-" text="- None -" />
+                    <aura:iteration items="{!v.objList}" var="var">
+                        <option value="{!var.value}" text="{!var.label}"/>  
+                    </aura:iteration>
+                </lightning:select>
+            </div><br/>
+            <div>
+                <aura:if isTrue="{!v.tableshow}">
+                    <div>
+                        <div class="slds-card__header slds-grid">
+                            <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                                <div class="slds-media__figure">
+                                    <span class="slds-icon_container slds-icon-standard-account" title="account">
+                                        <lightning:icon size="medium" iconName="standard:account" alternativeText="Fields" title="Fields" />
+                                        <span class="slds-assistive-text">account</span>
+                                    </span>
+                                </div>
+                                <div class="slds-media__body">
+                                    <h2 class="slds-card__header-title">
+                                        <span>{!'Total Fields'+'('+v.wrapperList.length+')'}</span>
+                                    </h2>
+                                </div>
+                                <div class="slds-no-flex">
+                                    <lightning:button class="slds-theme_neutral" disabled="{!v.newAndShowProfiles}" variant="neutral" label="New" onclick="{! c.handleNewButtonClick }"></lightning:button>
+                                    <lightning:button class="slds-theme_neutral" disabled="{!v.newAndShowProfiles}" variant="neutral" label="Show All Profiles" onclick="{!c.handleShowProfilesClick}"></lightning:button>
+                                </div>
+                            </header>
+                        </div>
+                        <aura:if isTrue="{!v.dataVisible}">
+                            <lightning:layout horizontalAlign="center">
+                                <span class="slds-badge">No fields To Display</span>
+                            </lightning:layout>
+                        </aura:if>
+                        <aura:if isTrue="{!v.fieldsVisible}">
+                            <div>
+                                <table>
+                                    <tr><td style="width:3%"><div class="slds-m-left_small">Show</div></td>
+                                        <td style="width:5%">
+                                            <div class="slds-m-left_xx-small"><ui:inputSelect aura:id="records" value="{!v.sortNo}" change="{!c.onSortChange}">
+                                                <ui:inputSelectOption text="10" value="10"/>
+                                                <ui:inputSelectOption text="20" value="20"/>
+                                                <ui:inputSelectOption text="50" value="50"/>
+                                                <ui:inputSelectOption text="100" value="100"/>
+                                                </ui:inputSelect> 
+                                            </div>
+                                        </td><td><div class="slds-m-left_xx-small">Entries</div></td>
+                                        <td>
+                                            <div class="slds-float_right slds-m-bottom_medium ">
+                                                <p><lightning:input type="text" name="searchKey" aura:id="searchKey" onchange="{!c.searchKeyChange}" placeholder="Search" style="width:90%"/></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>     
+                        </aura:if>
+                        <aura:if isTrue="{!v.fieldsVisible}">
+                            <div class="slds-scrollable_x" style="width: 100%; height: 80%;">
+                                <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered " role="grid">      
+                                    <thead>  
+                                        <tr class="slds-text-title--caps">
+                                            <th scope="col">
+                                                <strong><div class="slds-truncate" >S No.</div></strong>
+                                            </th>
+                                            <th scope="col">
+                                                <strong><div class="slds-truncate" >Field Names
+                                                    <span>
+                                                        <aura:if isTrue="{!v.arrowdown}">
+                                                            <lightning:icon iconName="utility:arrowdown" size="xx-small"  title="arrowdown" onclick="{!c.sort}" />
+                                                        </aura:if>
+                                                        <aura:if isTrue="{!v.arrowup}">
+                                                            <lightning:icon iconName="utility:arrowup" size="xx-small" title="arrowup" onclick="{!c.sort}" />
+                                                        </aura:if>
+                                                    </span>
+                                                    </div></strong>
+                                            </th>
+                                            <aura:iteration items="{!v.wrapperList[0].profileWrp}" var="pf">
+                                                <th scope="col">
+                                                    <strong><div class="slds-truncate">{!pf.profile}</div></strong>
+                                                </th>
+                                            </aura:iteration>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <aura:iteration items="{!v.paginationList}" var="field" indexVar="indx">
+                                            <tr scope="row">
+                                                <td scope="row" style="text-align: left">
+                                                    <div class="slds-truncate" title="{!(indx + 1 )}">{!field.SerialNo}</div>
+                                                </td>
+                                                <td scope="row" style="text-align: left">
+                                                    <div class="slds-truncate" title="{!field.fieldName}">{!field.fieldName}</div>
+                                                </td>
+                                                <aura:iteration items="{!field.profileWrp}" var="pf">
+                                                    <td style="border-collapse: collapse;">
+                                                        <div class="slds-grid slds-gutters">
+                                                            <div class="slds-col">
+                                                                <span>
+                                                                    <td style="border: 0px ">
+                                                                        <lightning:input type="checkbox" name="{!field.fieldName}" label="Read" checked="{!pf.read}" />
+                                                                    </td>
+                                                                </span>
+                                                            </div>
+                                                            <div class="slds-col">
+                                                                <span>
+                                                                    <td style="border: 0px ">
+                                                                        <lightning:input type="checkbox" name="{!field.fieldName}" label="Write" checked="{!pf.write}"/>
+                                                                    </td>
+                                                                </span>
+                                                            </div>
+                                                        </div>   
+                                                    </td>
+                                                </aura:iteration>
+                                            </tr>
+                                        </aura:iteration>
+                                    </tbody>
+                                </table>
+                                <aura:if isTrue="{!v.noRecordsToShow}">
+                                    <br/><lightning:layout horizontalAlign="center">
+                                    <span class="slds-badge slds-align_absolute-center slds-m-bottom_xx-large">No Records to Display</span>
+                                    </lightning:layout>
+                                </aura:if>
+                            </div>
+                        </aura:if>  
+                        <aura:if isTrue="{!v.showModal}">
+                            <c:CustomFieldCreation objname="{!v.objselectedValue}" isOpen="{!v.showModal}"/>
+                        </aura:if>
+                        <aura:if isTrue="{!v.fieldsVisible}">
+                            <div class="slds-m-top_x-large">
+                                <div class="slds-p-left_x-large"><p>Showing Page {!v.pageNumber} of {!v.maxPage} 
+                                    <lightning:layout horizontalAlign="center">
+                                        <c:Pagination currentPage="{!v.pageNumber}" maxPage="{!v.maxPage}"/>
+                                    </lightning:layout></p></div>
+                            </div>
+                        </aura:if>
+                    </div>
+                </aura:if>
+            </div>
+        </lightning:card>
+        <div style="height: 180px;">
+            <div class="slds-docked-form-footer">
+                <button class="slds-button slds-button_outline-brand" onclick="{!c.cancel}">Cancel</button>  
+                <lightning:button variant="brand" title="Save" label="Save" onclick="{!c.givePermissions}"/>
+            </div>
+        </div>
+</aura:component>

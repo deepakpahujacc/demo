@@ -1,0 +1,396 @@
+<aura:component controller="CustomFieldComponentController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+   
+    <aura:handler event="aura:waiting" action="{!c.showSpinner}"/>
+    <aura:attribute name="Spinner" type="boolean" default="false"/>
+    <aura:handler event="aura:doneWaiting" action="{!c.hideSpinner}"/>
+    <aura:attribute name="fieldValuesList" type="Object"/>
+    <aura:attribute name="paginationList" type="Object"/>
+    <aura:attribute name="sortNo" type="Integer" default='10'/>
+    <aura:attribute name="deletedfieldValuesList" type="Object"/>
+    <aura:attribute name="picklistFlag" type="boolean" default="true"/>
+    <aura:attribute name="boolval" type="list" default="['false','true']"/>
+    <aura:attribute name="gridData" type="Object"/>
+    <aura:attribute name="pageSizeList" type="String[]" default="10,20,30,50,100"/>
+    <aura:attribute name="pageNumber" type="Integer" default='1'/>
+    <aura:attribute name="maxPage" type="Integer"/>
+    <aura:handler name="change" value="{!v.pageNumber}" action="{!c.onPagination}"/>
+    <!-- Essential to add up with abhi comp -->
+    <aura:attribute name="showModal" type="boolean" default="false"/>
+    <!-- my old code -->
+    <aura:attribute name="existingfields" type="map"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="objselectedValue" type="String"/>
+    <aura:attribute name="fieldname" type="String"/>
+    <aura:attribute name="fieldvalues" type="String"/>
+    <aura:attribute name="fieldsize" type="String" />
+    <aura:attribute name="objlist" type="List"/>
+    <aura:attribute name="flagBool" type="Boolean"/>
+    <aura:attribute name="listControllingValues" type="list" default="['STRING','BOOLEAN','DATE','PICKLIST','REFERENCE','DATETIME','PERCENT','TEXTAREA','CURRENCY','PHONE','EMAIL','DOUBLE','AUTONUMBER']" description="to store controller field values"/>
+    <aura:attribute name="sortOrder" type="String" default="asc"/>
+    <aura:attribute name="sortOrderlabel" type="String" default="asc"/>
+    <!-- end -->
+    
+    <!-- sorting -->
+    
+	<aura:attribute name="Asc" type="boolean" default="True"/>
+ 	<aura:attribute name="labelAsc" type="boolean" default="True"/>   
+    
+    <!--end -->
+    <aura:attribute name="lookUpList" type="List" />
+    
+    <c:customToast aura:id="toastCmp"/>
+    
+    <!--loading spinner start... style=Brand Medium (blue dots)-->
+    <aura:if isTrue="{!v.Spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+    <!-- Loading spinner end-->
+    <lightning:card>
+        <div class="slds-page-header">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title">
+                    <div class="slds-media">
+                        <div class="slds-media__figure">
+                            <span class="slds-icon_container slds-icon-standard-opportunity">
+                                <lightning:icon  iconName="standard:canvas"/>
+                            </span>
+                        </div>
+                        <div class="slds-media__body">
+                            <div class="slds-page-header__name">
+                                <div class="slds-page-header__name-title">
+                                    <h1>
+                                        <span class="slds-page-header__title slds-truncate" >Mass Field Create</span>
+                                    </h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+       
+        <lightning:layout class="slds-wrap " multipleRows="true">
+            
+            <lightning:layoutItem size="6">
+                <div class="slds-m-left_small">
+                    <lightning:select aura:id="selectid" label="Select Object" name="obj" value="{!v.objselectedValue}" onchange="{!c.loadFields}">
+                        <option value="" text="-- Select an Object --" />
+                        <aura:iteration items="{!v.objlist}" var="var">
+                            <option value="{!var.optionValue}" text="{!var.optionLabel}"/>  
+                        </aura:iteration>
+                    </lightning:select>
+                </div>
+            </lightning:layoutItem>
+            <lightning:layoutItem size="6">
+                <div class="slds-m-left_small">
+                    <lightning:input type="file" accept=".csv" class="file" aura:id="file" onchange="{!c.showfiledata}" label="Upload CSV Here" multiple="false"/><a target="_blank" class="slds-text-link" href="" onclick="{!c.downloadCSV}">Download Sample File</a>
+                </div>
+            </lightning:layoutItem>
+            
+        </lightning:layout>
+        
+        <aura:if isTrue="{!(v.objselectedValue != '')}">
+            <div class="slds-card__header slds-grid">
+                <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                    <div class="slds-media__figure">
+                         <span class="slds-icon_container slds-icon-standard-account" title="Objects">
+                        <lightning:icon iconName="standard:account"/>
+                        <span class="slds-assistive-text">account</span>
+                    </span>
+                    </div>
+                    <div class="slds-media__body">
+                        <h2 class="slds-card__header-title">
+                            
+                            <span>Fields</span>
+                            
+                        </h2>
+                    </div>
+                    <div class="slds-no-flex">
+                        <button class="slds-button slds-button_neutral" onclick="{! c.handleNewButtonClick }">New</button>
+                    </div>
+                </header>
+            </div>
+                    
+            <div class="slds-m-top_small ">
+                <table><tr>
+                    <td style="width:3%"><div class="slds-m-top_medium slds-m-left_small">Show </div></td>
+                    <td style="width:5%">
+                        <lightning:select name="select1" label='' value="{!v.sortNo}" onchange="{!c.onSortChange}" class="slds-m-left_xx-small">
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </lightning:select>
+                    </td>
+                    <td><div class="slds-m-top_medium slds-m-left_xx-small">Entries</div></td>
+                    <td><div class="slds-clearfix">
+                        <div class="slds-float_right slds-m-bottom_x-small slds-m-right_medium">
+                            <p><lightning:input aura:id="searchKey"  type="search" name="searchKey" placeholder="Search" onchange="{!c.searchKeyChange}" /></p>
+                        </div>
+                        </div>
+                    </td>
+                    </tr>
+                </table>
+            </div>
+                    
+                    <!-- table to show existing data -->
+
+                     
+                         <div class="slds-m-right_small slds-m-left_small">
+                        <form>
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered" >
+                            <thead>
+                                <tr>
+                                    <th class="col-xs-3">
+                                       S.No
+                                        
+                                    </th>
+                                    <th  class="col-xs-3" onclick="{!c.sortlabel}">
+                                        <div class="slds-truncate"  >
+                                           Label
+                                            <span>
+                                                <aura:if isTrue="{!v.labelAsc}">
+                                                    <lightning:icon aura:id="Arrow" iconName="utility:arrowdown" size="x-small" 
+                                                                    alternativeText="Approved" title="Arrow Down" onclick="{!c.sortlabel}" />
+                                                    <aura:set attribute="else">
+                                                        <lightning:icon iconName="utility:arrowup" size="x-small" 
+                                                                        alternativeText="arrowup" title="Arrow Up" onclick="{!c.sortlabel}" />
+                                                    </aura:set>
+                                                </aura:if>
+                                            </span>
+                                        </div>                       
+                                    </th> 
+                                    
+                                    <th  class="col-xs-3" onclick="{!c.sort}">
+                                        <div class="slds-truncate"  >
+                                            Object Name
+                                            <span>
+                                                <aura:if isTrue="{!v.Asc}">
+                                                    <lightning:icon aura:id="Arrow" iconName="utility:arrowdown" size="x-small" 
+                                                                    alternativeText="Approved" title="Arrow Down" onclick="{!c.sort}" />
+                                                    <aura:set attribute="else">
+                                                        <lightning:icon iconName="utility:arrowup" size="x-small" 
+                                                                        alternativeText="arrowup" title="Arrow Up" onclick="{!c.sort}" />
+                                                    </aura:set>
+                                                </aura:if>
+                                            </span>
+                                        </div>                       
+                                    </th> 
+                                    
+                                    
+                                    <th class="col-xs-3">
+                                        Data type
+                                        
+                                    </th>
+                                    <th class="col-xs-3">
+                                       Default Value
+                                        
+                                    </th>
+                                    
+                                    <th class="col-xs-3">
+                                        Length
+                                        
+                                    </th>
+                                    
+                                    <th class="col-xs-3">
+                                       Decimal
+                                        
+                                    </th>
+                                    <th class="col-xs-3">
+                                       Lookup
+                                          
+                                    </th>
+                                    <th class="col-xs-3">
+                                        PickList Value
+                                       
+                                    </th>
+                                    
+                                    <th class="col-xs-3">
+                                       
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <aura:iteration items="{!v.paginationList}" var="fv" indexVar="i">
+                                    <tr >
+                                        <td>
+                                            <div class="slds-m-top_large">
+                                           <ui:outputNumber value="{!((v.pageNumber*v.sortNo - (v.sortNo-i))+1)}" class="slds-m-left_medium"/>
+                                       		</div>
+                                            </td>
+                                         <td>
+                                             <aura:if isTrue="{!(fv.type == 'REFERENCE')}">
+                                                 <lightning:input type="text" aura:id="unique" value="{!fv.label}" placeholder="Label" name="{!i+','+0}" disabled="{!(fv.isRef)}" ></lightning:input> 
+                                                 <aura:set attribute="else">
+                                                 <lightning:input type="text" aura:id="unique" value="{!fv.label}" placeholder="Label" name="{!i+','+0}"  ></lightning:input> 
+                                                 </aura:set>
+                                             
+                                             </aura:if>
+                                            
+                                            
+                                        </td>
+                                          <td>
+                                            
+                                            <lightning:input type="text" value="{!fv.name}" disabled="{!(fv.fromOrg)}" placeholder="Name" name="{!i}" ></lightning:input>
+                                            
+                                        </td>
+                                          <td>
+                                              <aura:if isTrue="{!(fv.type == 'REFERENCE')}">
+                                                  <lightning:layoutItem size="12" >    
+                                                      <lightning:select name="{!i}"
+                                                                        value="{!fv.type}"
+                                                                        
+                                                          				disabled="{!fv.isRef}"
+                                                                        >
+                                                          <aura:iteration items="{!v.listControllingValues}" var="val">
+                                                              <option value="{!val}" >{!val}</option>
+                                                          </aura:iteration>
+                                                      </lightning:select>
+                                                  </lightning:layoutItem>
+                                                  <aura:set attribute="else">
+                                                      <lightning:layoutItem size="12" >    
+                                                          <lightning:select name="{!i}"
+                                                                            value="{!fv.type}"
+                                                                            onchange="{!c.onControllerFieldChange}">
+                                                              <aura:iteration items="{!v.listControllingValues}" var="val">
+                                                                  <option value="{!val}" >{!val}</option>
+                                                              </aura:iteration>
+                                                          </lightning:select>
+                                                      </lightning:layoutItem>
+                                                  </aura:set>
+                                              </aura:if>
+                                            
+                                            
+                                        </td>
+                                         <td>
+                                            
+                                            <aura:if isTrue="{!or(fv.type == 'BOOLEAN',fv.type == 'PICKLIST')}">
+                                                <lightning:layoutItem size="12" >    
+                                                    <lightning:select name="{!i}"
+                                                                      value="{!fv.defaultValue}"
+                                                                      >
+                                                        <aura:iteration items="{!v.boolval}" var="val">
+                                                            <option value="{!val}" >{!val}</option>
+                                                        </aura:iteration>
+                                                    </lightning:select>
+                                                </lightning:layoutItem>
+                                                
+                                                
+                                            </aura:if> 
+                                            
+                                            
+                                        </td>
+                                         <td>
+                                            
+                                            <aura:if isTrue="{!or(fv.type == 'BOOLEAN',fv.type == 'DATE',fv.type == 'EMAIL' ,fv.type == 'REFERENCE',fv.type == 'PHONE',fv.type == 'AUTONUMBER')}">
+                                               
+                                                <aura:set attribute="else">
+                                                    <aura:if isTrue="{!(fv.type == 'DOUBLE')}">
+                                                        
+                                                        <lightning:input type="number" class="slds-size_2-of-4"  value="{!fv.precision}"  placeholder="Length" name="{!i+','+4}"  ></lightning:input>
+                                                    </aura:if>
+                                                    <aura:if isTrue="{!fv.type == 'PERCENT'}">
+                                                        
+                                                        <lightning:input type="number" class="slds-size_2-of-4"  value="{!fv.precision}"  placeholder="Length" name="{!i+','+4}"  ></lightning:input>
+                                                    </aura:if>
+                                                    <aura:if isTrue="{!fv.type == 'CURRENCY'}">
+                                                        
+                                                        <lightning:input type="number" class="slds-size_2-of-4"  value="{!fv.precision}"  placeholder="Length" name="{!i+','+4}"  ></lightning:input>
+                                                    </aura:if>
+                                                    <aura:if isTrue="{!fv.type == 'STRING'}">
+                                                       
+                                                        <lightning:input type="number"  class="slds-size_2-of-4" value="{!fv.length}"  placeholder="Length" name="{!i+','+4}"  ></lightning:input>
+                                                    </aura:if>
+                                                       
+                                                </aura:set>
+                                            </aura:if>
+                                            
+                                        </td>
+                                       <td>
+                                            <aura:if isTrue="{!fv.type == 'CURRENCY'}">
+                                                 
+                                                 <lightning:input  class="slds-size_2-of-4" type="number"  value="{!fv.scale}"  placeholder="Decimal place" name="{!i+','+5}"  ></lightning:input> 
+                                            </aura:if>
+                                            <aura:if isTrue="{!fv.type == 'DOUBLE'}">
+                                                
+                                                <lightning:input  class="slds-size_2-of-4" type="number"  value="{!fv.scale}"  placeholder="Decimal place" name="{!i+','+5}"  ></lightning:input> 
+                                            </aura:if>
+                                            <aura:if isTrue="{!fv.type == 'PERCENT'}">
+                                                
+                                                <lightning:input  class="slds-size_2-of-4" type="number"  value="{!fv.scale}"  placeholder="Decimal place" name="{!i+','+5}"  ></lightning:input> 
+                                            </aura:if>
+                                             
+                                            
+                                        </td>
+                                         <td>
+                                            <aura:if isTrue="{!(fv.type == 'REFERENCE')}">
+                                                <lightning:layoutItem size="12" >    
+                                                    <lightning:select name="{!i}"
+                                                                      value="{!fv.referenceTo}"
+                                                                      disabled="{!fv.isRef}"
+                                                                      >
+                                                        <aura:iteration items="{!v.lookUpList}" var="val">
+                                                            <option value="{!val}" >{!val}</option>
+                                                        </aura:iteration>
+                                                    </lightning:select>
+                                                </lightning:layoutItem>
+                                            </aura:if>                                        
+                                        </td>
+                                        
+                                        <td>
+                                            
+                                            
+                                            <aura:if isTrue="{!(fv.type == 'PICKLIST')}">
+                                                <lightning:input type="text"  value="{!fv.pickListValue}" placeholder="PickList Value"></lightning:input>
+                                                
+                                                
+                                            </aura:if>
+                                            
+                                        </td>
+                                        
+                                         <td>
+                                            
+                                            <a onclick="{!c.removeRow}" data-index="{!i}">
+                                                <lightning:icon variant="error" iconName="utility:delete" class="slds-icon slds-icon_small slds-m-top_x-large" size="small" alternativeText="icon"/>
+                                                <span class="slds-assistive-text">Delete Icon</span>
+                                            </a>
+                                            
+                                        </td>
+                                    </tr>
+                                </aura:iteration>
+                            </tbody>
+                        </table>
+                            <aura:if isTrue="{!empty(v.paginationList)}">
+                                <div class="slds-m-around_large">
+                                    <span class=" slds-align_absolute-center ">No Records to Display</span>
+                                </div>
+                            </aura:if>
+                            </form>
+                    </div>
+                    <!-- table end of show existing data -->
+            <div class="slds-p-left_x-large"><p>Showing Page {!v.pageNumber} of {!v.maxPage} </p></div>
+                     <div class="slds-align_absolute-center slds-m-bottom_xx-large" style="height:3.5rem"><c:paginationComponent currentPage="{!v.pageNumber}" maxPage="{!v.maxPage}" aura:id="childComp" /></div>
+               
+               
+           
+        </aura:if>
+        <aura:if isTrue="{!v.showModal}">
+            <c:newField objname="{!v.objselectedValue}" isOpen="{!v.showModal}" aura:id="compB" method="{!c.loadFields}"/>
+        </aura:if>
+         <div class="slds-docked-form-footer slds-m-top_x-small " >
+                    
+                
+                        <button class="slds-button slds-button_outline-brand" onclick="{!c.cancel}">Cancel</button>
+                        <lightning:button class="slds-theme_brand" variant="brand" type="button" label="Save" onclick="{!c.CreateRecord}"></lightning:button>
+                    
+                    
+                   </div>
+    </lightning:card>
+</aura:component>

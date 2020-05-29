@@ -1,0 +1,200 @@
+<aura:component  implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,force:hasSObjectName" access="global"  Controller="CustomMetadataTypesRecordController">
+    <aura:attribute name="CustomMetaDataObjecList" type="string[]"/>
+    <aura:attribute name="SelectedObject" type="string"/>
+    <aura:attribute name="fieldSetValues" type="List"/>
+    <aura:attribute name="tableRecords" type="List" default=''/>
+    <aura:attribute name="tableRecordsOriginal" type="List" default=''/>
+    <aura:attribute name="Recordvisible" type="boolean" default="True"/>
+    <aura:attribute name="Objectvisible" type="boolean" default="True"/>
+    <aura:attribute name="toDeleteRecord" type="List" default=""/>
+    <aura:attribute name="isDevelopername" type="boolean" default="true"/>
+    <aura:attribute name="temp" type="boolean" default="false"/>    
+    <aura:handler event="aura:waiting" action="{!c.showSpinner}"/>
+    <aura:handler event="aura:doneWaiting" action="{!c.hideSpinner}"/>
+    <aura:attribute name="Spinner" type="boolean" default="false"/>
+    <aura:attribute name="addRowhandle" type="boolean" default="true"/>
+    <aura:attribute name="pageNumber" type="Integer" default='1'/>
+    <aura:attribute name="maxPage" type="Integer"/>     
+    <aura:handler name="change" value="{!v.pageNumber}" action="{!c.onPagination}"/>
+    <aura:attribute name="sortNo" type="Integer" default='10'/>
+    <aura:attribute name="paginationList" type="List" default=''/>
+    <aura:attribute name="searchKey" type="string" default='' />
+    
+    <aura:attribute name="Asc" type="boolean" default="True"/>
+  
+    <aura:handler name="init" value="{!this}" action="{!c.init}"/>    
+    
+      <aura:if isTrue="{!v.Spinner}">
+            <div aura:id="spinnerId" class="slds-spinner_container" >
+                <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                    <span class="slds-assistive-text">Loading</span>
+                    <div class="slds-spinner__dot-a"></div>
+                    <div class="slds-spinner__dot-b"></div>
+                </div>
+            </div>
+          <!--  <aura:set attribute="else"> -->
+        </aura:if> 
+    
+    <div class="slds-m-right_xxx-small slds-m-left_xx-small">
+        <div class="slds-page-header ">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title">
+                    <div class="slds-media">
+                        <div class="slds-media__figure">
+                            <span class="slds-icon_container slds-icon-standard-opportunity">
+                                <lightning:icon iconName="standard:canvas"/>
+                            </span>
+                        </div>
+                        <div class="slds-media__body">
+                            <div class="slds-page-header__name">
+                                <div class="slds-page-header__name-title">
+                                    <h1>
+                                        <span class="slds-page-header__title slds-truncate" >Custom MetaData Type</span>
+                                    </h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="slds-m-around_xx-small slds-m-top_xx-small">
+        <lightning:card>
+    <div class="slds-m-left_small slds-m-bottom_xx-large  slds-m-bottom_xx-large slds-m-bottom_xx-large">
+        
+      
+                <div style="width:50%;">
+                    <strong><lightning:combobox label="Custom Metadata Type" options="{!v.CustomMetaDataObjecList}" value="{!v.SelectedObject}"
+                                                placeholder="Select any CustomMetaData" dropdownAlignment="left" variant="standard" onchange="{! c.handleChange }" styleclass="slds-m-around_x-large"  ></lightning:combobox>
+                        <lightning:spinner aura:id="mySpinner" alternativeText="Processing.." title="Processing.." variant="brand" size="large" class="slds-hide"/></strong>
+                </div>
+         <!--   </aura:set>-->
+        <!--</aura:if> -->
+        <br/>
+        <aura:if isTrue="{!v.Recordvisible}">
+            <center>
+                <lightning:badge label="Please Select MetaData Type"/>
+            </center>
+            <aura:set attribute="else">
+                <lightning:card title=" Custom MetaData Record" iconName="standard:contact" variant="base">
+                    <aura:set attribute="actions">
+                        <lightning:button class="slds-theme_neutral" variant="neutral" label="Add Row" onclick="{!c.AddRecord}" ></lightning:button>
+                        
+                    </aura:set>
+                    <div class="slds-m-around_xxx-small ">
+                        <table><tr>
+                            <td style="width:3%"><div class="slds-m-top_medium slds-m-left_medium">Show</div></td>
+                            <td style="width:5%"><div class="slds-m-left_xx-small">
+                                <lightning:select name="select1" label='' value="{!v.sortNo}" onchange="{!c.onSortChange}">                                    
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </lightning:select>
+                                </div>
+                            </td>
+                            <td><div class="slds-m-top_medium slds-m-left_xx-small">Entries</div></td>
+                            <td><div class="slds-clearfix">
+                                <div class="slds-float_right slds-m-bottom_x-small">
+                                    <p><lightning:input type="text" name="searchKey" 
+                                                        style="width: 255px !important;" 
+                                                        value="{!v.searchKey}" 
+                                                        placeholder="Search.." 
+                                                        onchange="{!c.handleSearchkey}" /></p>
+                                </div>
+                                </div>
+                            </td>
+                            </tr> 
+                        </table>
+                    </div>
+                     <div class="slds-scrollable_x slds-m-bottom_large" style="width:100%">
+                        <table class="slds-table slds-table--bordered">
+                            <thead>
+                                <tr><th ><div class="slds-m-left_small">S.no</div></th>
+                                    <aura:iteration items="{!v.fieldSetValues}" var="field">
+                                        <aura:if isTrue ="{!field.label == 'Custom Metadata Record Name'}">
+                                             <th onclick="{!c.sort}">
+                                                 {!field.label}
+                                                  <span>
+                                                                <aura:if isTrue="{!v.Asc}">
+                                                                    <lightning:icon aura:id="Arrow" iconName="utility:arrowdown" size="x-small" 
+                                                                                    alternativeText="Approved" title="Arrow Down" onclick="{!c.sort}" />
+                                                                    <aura:set attribute="else">
+                                                                        <lightning:icon iconName="utility:arrowup" size="x-small" 
+                                                                                        alternativeText="arrowup" title="Arrow Up" onclick="{!c.sort}" />
+                                                                    </aura:set>
+                                                                </aura:if>
+                                                            </span>
+                                                  </th>
+                                                  <aura:set attribute ="else">
+                                        <th> {!field.label}</th>
+                                                 </aura:set>
+                                           </aura:if>
+                                      </aura:iteration>
+                                    <th >
+                                        Action
+                                    </th>
+                                </tr>
+                            </thead>
+                            
+                            <tbody>
+                               <!-- <aura:iteration items="{!v.tableRecords}" var="row" indexVar="index"> -->    
+                                <aura:iteration items="{!v.paginationList}" var="row" indexVar="index"> 
+                                <tr>
+                                    <td > <div class="slds-m-top_medium slds-m-left_large">
+                                            <strong>{!row.serialNo}</strong></div>
+                                        </td>
+                                        
+                                        <aura:iteration items="{!v.fieldSetValues}" var="field">                            
+                                            <td >
+                                                <c:LightningCell2 record="{!row}" field="{!field}" objectname = "{!v.SelectedObject}"/>                              
+                                            </td>
+                                        </aura:iteration>
+                                        <td ><div class="slds-m-top_medium">
+                                          <!--  <a onclick="{!c.removeRow}" data-record="{!index}"> 
+                                                <lightning:icon iconName="utility:delete" size="small" alternativeText="Delete" variant="error"/>
+                                                <span class="slds-assistive-text">Delete</span>
+                                            </a> -->
+                                            <a onclick="{!c.removeRow}" data-index="{!index}">
+                                                <lightning:icon variant="error" iconName="utility:delete" class="slds-icon slds-icon_small" size="small" alternativeText="icon"/>
+                                                <span class="slds-assistive-text">Delete Icon</span>
+                                            </a>
+                                            </div>
+                                        </td> 
+                                    </tr>
+                                </aura:iteration>
+                            </tbody>
+                        </table>
+                    </div>                    
+                    <br/>
+                     <div class="slds-m-bottom_xxx-large">
+                <table><tr>
+                    <td><div class="slds-m-left_medium"><p>Showing: {!v.pageNumber} of {!v.maxPage}</p></div></td>
+                    <td style="width:19%"></td>
+                    <td>
+                        <div class="">
+                            <c:Pagination currentPage="{!v.pageNumber}" maxPage="{!v.maxPage}" aura:id="childComp"/>
+                        </div>
+                    </td>
+                    </tr>
+                </table>
+            </div>
+                    
+                </lightning:card>                
+            </aura:set>            
+        </aura:if> 
+        <div class="slds-docked-form-footer">
+            <lightning:layout horizontalAlign="center">
+                <div class="slds-m-left_xxx-large">
+                    <button class="slds-button slds-button_outline-brand" onclick="{!c.cancel}">Cancel</button>	
+                    <lightning:button variant="brand" label="Save" title=" Save " onclick="{! c.SaveRecord }" />
+                </div>
+            </lightning:layout>
+        </div>
+       
+    </div>  
+             </lightning:card>
+    </div>
+</aura:component>

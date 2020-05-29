@@ -1,0 +1,111 @@
+<apex:page controller="ExportAsCSV"  cache="true" contentType="application/vnd.ms-excel"  >
+
+ <apex:pageMessages id="showmsg"></apex:pageMessages>
+    {!xmlheader}
+    <Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+        xmlns:o="urn:schemas-microsoft-com:office:office"
+        xmlns:x="urn:schemas-microsoft-com:office:excel"
+        xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+        xmlns:html="http://www.w3.org/TR/REC-html40" >
+    <Styles>
+        <Style ss:ID="s1">
+            <Alignment/>
+            <Borders/>
+            <Font ss:Bold="1"/>
+            <Interior/>
+            <NumberFormat/>
+            <Protection/>
+        </Style>       
+    </Styles>
+    
+         <apex:repeat value="{!wrapperList}" var="wrapperObj">  
+            <Worksheet ss:Name="{!wrapperObj.objectName} - Fields">
+            <Table x:FullColumns="1" x:FullRows="1">
+            <Column ss:Width="170"/>
+            <Row>
+                <Cell ss:StyleID="s1"><Data ss:Type="String" >Label</Data></Cell>   
+                <Cell ss:StyleID="s1"><Data ss:Type="String" >QualifiedApiName</Data></Cell>  
+                <Cell ss:StyleID="s1"><Data ss:Type="String" >Length</Data></Cell>  
+                <Cell ss:StyleID="s1"><Data ss:Type="String" >DataType</Data></Cell>  
+                <Cell ss:StyleID="s1"><Data ss:Type="String" >RelationshipName </Data></Cell>               
+            </Row>
+                <apex:repeat value="{!wrapperObj.fieldList}" var="fieldName">
+                    <Row>
+                        <Cell><Data ss:Type="String">{!fieldName.Label}</Data></Cell>
+                        <Cell><Data ss:Type="String">{!fieldName.QualifiedApiName}</Data></Cell>
+                        <Cell><Data ss:Type="String">{!fieldName.Length}</Data></Cell>
+                        <Cell><Data ss:Type="String">{!fieldName.DataType}</Data></Cell>
+                        <Cell><Data ss:Type="String">{!fieldName.RelationshipName }</Data></Cell>
+                    </row>
+                </apex:repeat>
+              </table>
+              </worksheet>
+           </apex:repeat>
+           
+           
+           <apex:repeat value="{!RecordTypewrapperList}" var="recdObj">  
+                <Worksheet ss:Name="{!recdObj.objectName} - RecordType">
+                <Table x:FullColumns="1" x:FullRows="1">
+                <Column ss:Width="170"/>
+                    <Row>
+                        <Cell ss:StyleID="s1"><Data ss:Type="String" >Name</Data></Cell>   
+                        <Cell ss:StyleID="s1"><Data ss:Type="String" >DeveloperName</Data></Cell>
+                        <Cell ss:StyleID="s1"><Data ss:Type="String" >IsActive</Data></Cell>  
+                    </Row>
+                <apex:repeat value="{!recdObj.recordTypeList}" var="recdData">
+                    <Row>
+                        <Cell><Data ss:Type="String">{!recdData.Name}</Data></Cell>
+                        <Cell><Data ss:Type="String">{!recdData.DeveloperName}</Data></Cell>
+                        <Cell><Data ss:Type="String">{!recdData.IsActive}</Data></Cell>
+                    </Row>
+                </apex:repeat>
+            </Table>
+            </Worksheet>
+        </apex:repeat>
+        
+        
+        <apex:repeat value="{!FieldsetListWrapper}" var="wrapObj">
+               <Worksheet ss:Name="{!wrapObj.objectNAme} - FieldSet">
+                <Table x:FullColumns="1" x:FullRows="1">
+                <Column ss:Width="170"/>                
+                    <Row>
+                        <Cell ss:StyleID="s1"><Data ss:Type="String" >FieldSet Name</Data></Cell>   
+                        <Cell ss:StyleID="s1"><Data ss:Type="String" >Fields</Data></Cell>   
+                    </Row>
+                     <apex:repeat value="{!wrapObj.wrapperclasslist2}" var="fieldsetdata">
+                          <Row>
+                            <Cell><Data ss:Type="String">{!fieldsetdata.fieldsetname }</Data></Cell>  
+                            <Cell><Data ss:Type="String">{!fieldsetdata.fieldsvalue}</Data></Cell>    
+                         </Row>
+                     </apex:repeat>
+                 </Table>
+            </Worksheet>
+         </apex:repeat>
+         
+         <apex:repeat value="{!LayoutWrapperList}" var="LayObj">
+              <Worksheet ss:Name="{!LayObj.objectNAme} - Layout Data">
+                   <Table x:FullColumns="1" x:FullRows="1">
+                   <Column ss:Width="170"/>                
+                        <Row>
+                      <!--  <Cell ss:StyleID="s1"><Data ss:Type="String" >LayoutName Name</Data></Cell>
+                        <Cell ss:StyleID="s1"><Data ss:Type="String" >Section Name</Data></Cell> -->
+                        </Row>
+                    <apex:repeat value="{!LayObj.wrapperclasslist4}" var="Layoutdata">                      
+                         <Row>
+                            <Cell ss:StyleID="s1"><Data ss:Type="String">{!Layoutdata.apiFullname}</Data></Cell>
+                          </Row>
+                         
+                              <apex:repeat value="{!Layoutdata.sectionMetaDetails}" var="secdata">
+                              <Row>
+                                <Cell><Data ss:Type="String">{!secdata.sectionName} Section </Data></Cell>
+                              </Row>
+                              <Row>
+                                  <Cell><Data ss:Type="String">{!secdata.fieldsList}</Data></Cell>
+                              </Row>
+                            </apex:repeat>
+                         </apex:repeat>
+                 </Table>                        
+              </Worksheet>
+         </apex:repeat>
+    </Workbook>     
+ </apex:page>

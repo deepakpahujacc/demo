@@ -1,0 +1,259 @@
+<aura:component Controller="MutipleRecordExportController" implements="flexipage:availableForAllPageTypes,force:appHostable"  access="global">
+    <aura:attribute name="wrapList" type="List"/>
+    <aura:attribute name="paginationList" type="List"/>
+    <aura:attribute name="ObjectName" type="String"/>
+    <aura:attribute name="PluralObjectName" type="String"/>
+    <aura:attribute name="RecordName" type="String"/>
+    <aura:attribute name="RecordType" type="Boolean"/>
+    <aura:attribute name="searchKey" type="String" default =''/>
+    <aura:handler name="init" value="{!this}" action="{!c.initData}"/>
+    <aura:handler event="aura:waiting" action="{!c.showSpinner}"/>
+    <aura:handler event="aura:doneWaiting" action="{!c.hideSpinner}"/>
+    <aura:attribute name="Spinner" type="boolean" default="false"/>
+    <aura:attribute name="dateValidationError" type="boolean" />
+    <aura:attribute name="pageNumber" type="Integer" default='1'/>
+    <aura:attribute name="maxPage" type="Integer"/>     
+    <aura:handler name="change" value="{!v.pageNumber}" action="{!c.onPagination}"/>
+    <aura:attribute name="sortNo" type="Integer" default='10'/>
+    <aura:attribute name="sortOrder" type="String" default="asc"/>
+    <aura:attribute name="StartNumber" type="String" default =''/>
+    <aura:attribute name="Asc" type="boolean" default="True"/>
+    <aura:attribute name="PluName" type="boolean" />
+    <aura:attribute name="RecordNamebool" type="boolean" />
+    <aura:attribute name="RecdType" type="boolean" />
+    <aura:attribute name="NoRecord" type="boolean" default = 'true' />
+    
+    
+    <ltng:require scripts="{!$Resource.downloadjs}"/>
+      <aura:if isTrue="{!v.Spinner}">
+     <div aura:id="spinnerId" class="slds-spinner_container">
+                    <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                        <span class="slds-assistive-text">Loading</span>
+                        <div class="slds-spinner__dot-a"></div>
+                        <div class="slds-spinner__dot-b"></div>
+                    </div>
+                </div>
+    </aura:if>
+    <div class="slds-page-header ">
+        <div class="slds-page-header__row">
+            <div class="slds-page-header__col-title">
+                <div class="slds-media">
+                    <div class="slds-media__figure">
+                        <span class="slds-icon_container slds-icon-standard-opportunity">
+                            <lightning:icon iconName="standard:canvas"/>
+                        </span>
+                    </div>
+                    <div class="slds-media__body">
+                        <div class="slds-page-header__name">
+                            <div class="slds-page-header__name-title">
+                                <h1>
+                                    <span class="slds-page-header__title slds-truncate" >Metadata Export</span>
+                                </h1>
+                            </div>                            
+                        </div>
+                    </div>
+                </div>
+            </div>            
+        </div>
+    </div>
+    <br/>
+    <article class="slds-card">
+        <div class="slds-card__header slds-grid">
+            <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                <div class="slds-media__figure">
+                    <span class="slds-icon_container slds-icon-standard-account" title="Objects">
+                        <lightning:icon iconName="standard:account"/>
+                        <span class="slds-assistive-text">Objects</span>
+                    </span>
+                </div>
+                <div class="slds-media__body">
+                    <h2 class="slds-card__header-title">
+                        <a href="javascript:void(0);" class="slds-card__header-link slds-truncate" title="Objects">
+                            <span>Objects</span>
+                        </a>
+                    </h2>           
+                </div>              
+                <div class="slds-no-flex">
+                    <button class="slds-button slds-button_neutral" onclick="{! c.handleNewButtonClick }">New</button>
+                </div>
+            </header>
+        </div>
+        <div class="slds-card__body slds-card__body_inner">
+            <aura:if isTrue="{!v.Spinner}">
+                <aura:set attribute="else">
+                    <div class="slds-m-around_xxx-small ">
+                        <table><tr>
+                            <td style="width:3%"><div class="slds-m-top_medium">Show</div></td>
+                            <td style="width:5%">
+                                <lightning:select name="select1" label='' value="{!v.sortNo}" onchange="{!c.onSortChange}">                                    
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </lightning:select>
+                            </td>
+                            <td><div class="slds-m-top_medium slds-m-left_xx-small">Entries</div></td>
+                            <td><div class="slds-clearfix">
+                                <div class="slds-float_right slds-m-bottom_x-small">
+                                    <p><lightning:input type="text" name="searchKey" 
+                                                        style="width: 255px !important;" 
+                                                        value="{!v.searchKey}" 
+                                                        placeholder="Search.." 
+                                                        onchange="{!c.handleSearchkey}" /></p>
+                                </div>
+                                </div>
+                            </td>
+                            </tr> 
+                        </table>
+                    </div>
+                    <div class="slds-m-bottom_medium ">
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered" id= "sobjectable" >
+                            <thead>
+                                <tr> 
+                                    <th  class="col-xs-3">S.No</th>                   
+                                    <th  class="col-xs-3" onclick="{!c.sort}">
+                                        <div class="slds-truncate"  >
+                                            Object Name
+                                            <span>
+                                                <aura:if isTrue="{!v.Asc}">
+                                                    <lightning:icon aura:id="Arrow" iconName="utility:arrowdown" size="x-small" 
+                                                                    alternativeText="Approved" title="Arrow Down" onclick="{!c.sort}" />
+                                                    <aura:set attribute="else">
+                                                        <lightning:icon iconName="utility:arrowup" size="x-small" 
+                                                                        alternativeText="arrowup" title="Arrow Up" onclick="{!c.sort}" />
+                                                    </aura:set>
+                                                </aura:if>
+                                            </span>
+                                        </div>                       
+                                    </th>                    
+                                    <th >Fields</th>
+                                    <th >FieldSet</th>
+                                    <th >RecordTypes</th>   
+                                    <th >Layout Data</th>   
+                                </tr>
+                            </thead>  
+                            <tbody>
+                                <aura:if isTrue="{!v.NoRecord}">
+                                    <td></td>
+                                    <td></td>
+                                    <td><div class="slds-align_absolute-center" style="height:5rem slds-m-left_xx-large">
+                                        <div class="slds-clearfix">
+  <div class="slds-float_right">
+                                       <p> <span class="slds-badge">No Record Found</span></p>
+                                            </div></div>
+                                        </div></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <aura:set attribute="else"> 
+                                <aura:iteration items="{!v.paginationList}" var="wrapData" indexVar="index">
+                                    <tr>
+                                        <td>{!wrapData.serialNo}</td>
+                                        <td><ui:outputText value="{!wrapData.sobjName}"/></td>
+                                        <td><lightning:input type="checkBox"  checked="{!wrapData.fieldRecord}"/></td>
+                                        <td><lightning:input type="checkBox"  checked="{!wrapData.fieldsetRecord}"/></td>
+                                        <td><lightning:input type="checkBox"  checked="{!wrapData.RecordtypeData}"/></td>
+                                        <td><lightning:input type="checkBox"  checked="{!wrapData.LayoutData}"/></td>
+                                    </tr>
+                                        
+                                </aura:iteration> 
+                                    </aura:set>
+                                </aura:if>
+                            </tbody>
+                        </table>
+                    </div>
+                </aura:set>
+            </aura:if>
+            <aura:if isTrue="{!v.Spinner}">
+            <aura:set attribute="else"> 
+            <div class="slds-m-bottom_xx-large">
+                <table><tr>
+                    <td><p>Showing: {!v.pageNumber} of {!v.maxPage}</p></td>
+                    <td style="width:19%"></td>
+                    <td>
+                        <div class="slds-m-left_xx-large">
+                            <c:Pagination currentPage="{!v.pageNumber}" maxPage="{!v.maxPage}"/>
+                        </div>
+                    </td>
+                    </tr>
+                </table>
+            </div>
+                </aura:set>
+            </aura:if>
+        </div>
+        <br/>
+        <div class="slds-docked-form-footer">
+            <lightning:layout horizontalAlign="center">
+                <div class="slds-m-left_xx-large">
+                    <button class="slds-button slds-button_outline-brand" onclick="{!c.cancel}">Cancel</button>	
+                    <lightning:button variant="brand" label="Export CSV" title="Export Csv" onclick="{! c.handleClick }" />
+                </div>
+            </lightning:layout>
+        </div>
+        
+    </article>
+    <div class="ccSetting slds-hide" aura:id="recordPopup" style="height: 340px; ">
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" onclick="{!c.handleCancelPopupClick }" title="Close">
+                        <lightning:icon iconName="utility:close" alternativeText="Close" />
+                    </button>
+                    <h2 class="slds-text-heading_medium slds-hyphenate">Create Object</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <div class="slds-form slds-form_stacked">
+                        <div class="slds-form-element">
+                            <lightning:input aura:id="field" type="text"  name="ObjName" label="Enter Object Name" value="{!v.ObjectName}"
+                                             class="{! v.dateValidationError ? 'slds-has-error' : ''}"/>
+                            <aura:if isTrue="{!v.dateValidationError}">
+                                <div class="slds-text-color_error slds-p-left_x-small">
+                                    Field Cannot be Null...
+                                </div>
+                            </aura:if>
+                            <lightning:input aura:id="field" type="text" name="PluName" class="{! v.PluName ? 'slds-has-error' : ''}"
+                                             label="Enter Plural Name" value="{!v.PluralObjectName}"/>
+                            <aura:if isTrue="{!v.PluName}">
+                                <div class="slds-text-color_error slds-p-left_x-small">
+                                    Plural Name is Required Or it should end with ' s , es , ives ...etc '
+                                </div>
+                            </aura:if>        
+                            <lightning:input aura:id="field" type="text" name="RecordName" class="{! v.RecordNamebool ? 'slds-has-error' : ''}"
+                                             label="Enter Record Name" value="{!v.RecordName}"/> 
+                            <aura:if isTrue="{!v.RecordNamebool}">
+                                <div class="slds-text-color_error slds-p-left_x-small">
+                                    Record Name is Required .. 
+                                </div>
+                            </aura:if>
+                            
+                            <lightning:select aura:id="select" name="select"  
+                                              label="Select RecordType" onchange="{! c.onChange }">
+                                <option value="">choose one...</option>
+                                <option value="Text">Text</option>
+                                <option value="Auto Number">Auto Number</option>
+                            </lightning:select>     
+                            
+                            <aura:if isTrue="{!v.RecordType}">
+                                <lightning:input aura:id="" type="Number" name="StartNumber" class="{! v.RecdType ? 'slds-has-error' : ''}"
+                                                 label="Starting Number" value="{!v.StartNumber}"/> 
+                                <aura:if isTrue="{!v.RecdType}">
+                                    <div class="slds-text-color_error slds-p-left_x-small">
+                                        Start number is Required ...
+                                    </div>
+                                </aura:if>
+                                
+                            </aura:if> 
+                        </div>
+                    </div>
+                </div>
+                <footer class="slds-modal__footer slds-m-bottom_x-large">
+                    <div class="slds-align_absolute-center">
+                        <lightning:button label="Cancel" title="Cancel" onclick="{! c.handleCancelPopupClick }"/>
+                        <lightning:button variant="brand" label="Save" title="Save" onclick="{! c.handleSavePopupClick }" />                    
+                    </div>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
+</aura:component>

@@ -1,0 +1,67 @@
+<aura:component access="global" Controller="CustomMetadataTypesRecordController">
+    <aura:attribute name="record" type="sObject" description="record which is being displayed"/>
+    <aura:attribute name="field" type="Object" description="field object which is being rendered"/>
+    <aura:attribute name="cellValue" type="Object"/>
+    <aura:attribute name="cellLabel" type="String"/>
+    <aura:attribute name="isTextField" type="boolean" default="false"/>
+    <aura:attribute name="isNumberField" type="boolean" default="false"/>
+    <aura:attribute name="isReferenceField" type="boolean" default="false"/>
+    <aura:attribute name="isDateField" type="boolean" default="false"/>
+    <aura:attribute name="isDateTimeField" type="boolean" default="false"/>
+    <aura:attribute name="isCurrencyField" type="boolean" default="false"/>
+    <aura:attribute name="isIdField" type="boolean" default="false"/>
+    <aura:attribute name="ishidden" type="boolean" default="false"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="isEmailField" type="boolean" default="false"/>
+    <aura:attribute name="isCheckBoxField" type="boolean" default="false"/>
+    <aura:attribute name="isUrlField" type="boolean" default="false"/>
+    <aura:attribute name="isTextAreaLongField" type="boolean" default="false"/>
+    <aura:attribute name="isPhoneField" type="boolean" default="false"/>
+    <aura:attribute name="isPercentField" type="boolean" default="false"/>
+    <aura:attribute name="isPicklistField" type="boolean" default="false"/>
+    <aura:attribute name="selectedValue" type="String" />
+    <aura:attribute name="CustomMetapickList" type="string[]"/>
+    <aura:attribute name="options" type="List"/>
+    <aura:attribute name="isPicklistFieldNull" type="boolean" default="false"/>
+    
+    <aura:if isTrue="{!v.isTextField}">
+        <Lightning:input value="{!v.cellValue}" type="text" onchange="{!c.handelOnChange}" /> 
+    </aura:if>
+    
+    <aura:if isTrue="{!v.ishidden}">
+        <ui:outputText value="{!v.cellValue}" />
+    </aura:if>
+    <aura:if isTrue="{!v.isIdField}">
+        <ui:outputText value="{!v.cellValue}" />
+    </aura:if>
+    <aura:if isTrue="{!v.isNumberField}">
+                <Lightning:input value="{!v.cellValue}" type="Number" onchange="{!c.handelOnChange}" />
+    </aura:if>
+    <aura:if isTrue="{!v.isDateField}">
+                <Lightning:input value="{!v.cellValue}" type="Date" onchange="{!c.handelOnChange}" />
+    </aura:if>
+    <aura:if isTrue="{!v.isDateTimeField}">
+                <Lightning:input value="{!v.cellValue}" type="DateTime" onchange="{!c.handelOnChange}" required="true"/>
+    </aura:if>
+    <aura:if isTrue="{!v.isCurrencyField}">
+                <Lightning:input value="{!v.cellValue}" type="number" formatter="currency" step="0.01" onchange="{!c.handelOnChange}" />
+    </aura:if>
+    <aura:if isTrue="{!v.isEmailField}">
+                <Lightning:input value="{!v.cellValue}" type="Email" onchange="{!c.handelOnChange}" />
+    </aura:if>
+    <aura:if isTrue="{!v.isCheckBoxField}">
+        <Lightning:input checked="{!v.cellValue}" type="checkBox" onchange="{!c.handelOnChange}" />
+    </aura:if>
+    <aura:if isTrue="{!v.isUrlField}">
+                <Lightning:input value="{!v.cellValue}" type="url" onchange="{!c.handelOnChange}" />
+    </aura:if>
+    <aura:if isTrue="{!v.isTextAreaLongField}">
+                <Lightning:input value="{!v.cellValue}" type="textarea" onchange="{!c.handelOnChange}"/>
+    </aura:if>
+    <aura:if isTrue="{!v.isPhoneField}">
+                <Lightning:input value="{!v.cellValue}" type="phone" formatter="percent" onchange="{!c.handelOnChange}" />
+    </aura:if>
+    <aura:if isTrue="{!v.isPercentField}">
+                <Lightning:input value="{!v.cellValue}" type="number" formatter="percent-fixed" step="0.01" onchange="{!c.handelOnChange}" />
+    </aura:if>
+</aura:component>

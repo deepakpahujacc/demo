@@ -1,0 +1,145 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global">
+    <lightning:card>
+        <div class="slds-modal__content slds-app-launcher__content slds-p-around_medium" id="modal-content-id-1">
+            <div class="slds-section slds-is-open">
+                <div aria-hidden="false" class="slds-section__content" id="appsContent">
+                    <div class="slds-assistive-text" id="drag-live-region" aria-live="assertive">Sales Cloud: final position 4 of 6.</div>
+                    <ul class="slds-grid slds-grid_pull-padded slds-wrap">
+                        <li class="slds-p-horizontal_small slds-size_1-of-1 slds-medium-size_1-of-3">
+                            <div draggable="true" class="slds-app-launcher__tile slds-text-link_reset slds-is-draggable">
+                                <div class="slds-app-launcher__tile-figure">
+                                    <span class="slds-avatar slds-avatar_large">
+                                        <abbr class="slds-avatar__initials slds-icon-custom-27" title="Sales Cloud">ME</abbr>
+                                    </span>
+                                    <div class="slds-m-top_xxx-small">
+                                        <button class="slds-button slds-button_icon" aria-pressed="false" title="Reorder">
+                                            <lightning:icon iconName="utility" class="slds-icon slds-icon_small" size="small" alternativeText="rows"/>
+                                            <span class="slds-assistive-text">Reorder</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="slds-app-launcher__tile-body" onclick="{!c.NavigatetoMetadataExport}">
+                                    <a href="javascript:void(0);" onclick="{!c.NavigatetoMetadataExport}">Metadata Export</a>
+                                    <p>The primary internal Salesforce org.</p>
+                                    <div class="slds-popover slds-popover_tooltip slds-nubbin_top slds-hide" role="tooltip" id="help-3" style="position:absolute;top:100px;left:165px">
+                                        <div class="slds-popover__body"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="slds-p-horizontal_small slds-size_1-of-1 slds-medium-size_1-of-3">
+                            <div draggable="true" class="slds-app-launcher__tile slds-text-link_reset slds-is-draggable">
+                                <div class="slds-app-launcher__tile-figure">
+                                    <span class="slds-avatar slds-avatar_large">
+                                        <abbr class="slds-avatar__initials slds-icon-custom-91" title="Call Center">MC</abbr>
+                                    </span>
+                                    <div class="slds-m-top_xxx-small">
+                                        <button class="slds-button slds-button_icon" aria-pressed="false" title="Reorder">
+                                            <lightning:icon iconName="utility" class="slds-icon slds-icon_small" size="small" alternativeText="rows"/>
+                                            <span class="slds-assistive-text">Reorder</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="slds-app-launcher__tile-body" onclick="{!c.NavigatetoMassFieldCreate}">
+                                    <a href="javascript:void(0);" onclick="{!c.NavigatetoMassFieldCreate}">Mass Field Create</a>
+                                    <p>The primary internal Salesforce org.</p>
+                                    <div class="slds-popover slds-popover_tooltip slds-nubbin_top slds-hide" role="tooltip" id="help-4" style="position:absolute;top:100px;left:165px">
+                                        <div class="slds-popover__body"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="slds-p-horizontal_small slds-size_1-of-1 slds-medium-size_1-of-3">
+                            <div draggable="true" class="slds-app-launcher__tile slds-text-link_reset slds-is-draggable">
+                                <div class="slds-app-launcher__tile-figure">
+                                    <span class="slds-avatar slds-avatar_large">
+                                        <abbr class="slds-avatar__initials slds-icon-custom-6" title="My Money">FL</abbr>
+                                    </span>
+                                    <div class="slds-m-top_xxx-small">
+                                        <button class="slds-button slds-button_icon" aria-pressed="false" title="Reorder">
+                                            <lightning:icon iconName="utility" class="slds-icon slds-icon_small" size="small" alternativeText="rows"/>
+                                            <span class="slds-assistive-text">Reorder</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="slds-app-launcher__tile-body" onclick="{!c.NavigatetoFieldLevelPermission}">
+                                    <a href="javascript:void(0);" onclick="{!c.NavigatetoFieldLevelPermission}">Field Level Permission</a>
+                                    <p>The primary internal Salesforce org.</p>
+                                    <div class="slds-popover slds-popover_tooltip slds-nubbin_top slds-hide" role="tooltip" id="help-2" style="position:absolute;top:100px;left:165px">
+                                        <div class="slds-popover__body"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="slds-p-horizontal_small slds-size_1-of-1 slds-medium-size_1-of-3">
+                            <div draggable="true" class="slds-app-launcher__tile slds-text-link_reset slds-is-draggable">
+                                <div class="slds-app-launcher__tile-figure">
+                                    <span class="slds-avatar slds-avatar_large">
+                                        <abbr class="slds-avatar__initials slds-icon-custom-59" title="Marketing Cloud">CL</abbr>
+                                    </span>
+                                    <div class="slds-m-top_xxx-small">
+                                        <button class="slds-button slds-button_icon" aria-pressed="false" title="Reorder" onclick="{!c.NavigatetoCustomLabels}">
+                                            <lightning:icon iconName="utility" class="slds-icon slds-icon_small" size="small" alternativeText="rows"/>
+                                            <span class="slds-assistive-text">Reorder</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="slds-app-launcher__tile-body" onclick="{!c.NavigatetoCustomLabels}">
+                                    <a href="javascript:void(0);" onclick="{!c.NavigatetoCustomLabels}">Custom Labels</a>
+                                    <p>The primary internal Salesforce org.</p>
+                                    <div class="slds-popover slds-popover_tooltip slds-nubbin_top slds-hide" role="tooltip" id="help-0" style="position:absolute;top:100px;left:165px">
+                                        <div class="slds-popover__body"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="slds-p-horizontal_small slds-size_1-of-1 slds-medium-size_1-of-3">
+                            <div draggable="true" class="slds-app-launcher__tile slds-text-link_reset slds-is-draggable">
+                                <div class="slds-app-launcher__tile-figure">
+                                    <span class="slds-avatar slds-avatar_large">
+                                        <abbr class="slds-avatar__initials slds-icon-custom-10" title="HR Concierge">CM</abbr>
+                                    </span>
+                                    <div class="slds-m-top_xxx-small">
+                                        <button class="slds-button slds-button_icon" aria-pressed="false" title="Reorder" onclick="{!c.NavigatetoCustomMetadaTypesRecord}">
+                                            <lightning:icon iconName="utility" class="slds-icon slds-icon_small" size="small" alternativeText="rows"/>
+                                            <span class="slds-assistive-text">Reorder</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="slds-app-launcher__tile-body" onclick="{!c.NavigatetoCustomMetadaTypesRecord}">
+                                    <a href="javascript:void(0);" onclick="{!c.NavigatetoCustomMetadaTypesRecord}">Custom Metadata Type</a>
+                                    <p>The primary internal Salesforce org. </p>
+                                    <div class="slds-popover slds-popover_tooltip slds-nubbin_top slds-hide" role="tooltip" id="help-1" style="position:absolute;top:100px;left:165px">
+                                        <div class="slds-popover__body"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="slds-p-horizontal_small slds-size_1-of-1 slds-medium-size_1-of-3">
+                            <div draggable="true" class="slds-app-launcher__tile slds-text-link_reset slds-is-draggable">
+                                <div class="slds-app-launcher__tile-figure">
+                                    <span class="slds-avatar slds-avatar_large">
+                                        <abbr class="slds-avatar__initials slds-icon-custom-50" title="Customer Support Communitiy">CS</abbr>
+                                    </span>
+                                    <div class="slds-m-top_xxx-small">
+                                        <button class="slds-button slds-button_icon" aria-pressed="false" title="Reorder" onclick="{!c.NavigatetoCustomSetting}">
+                                            <lightning:icon iconName="utility" class="slds-icon slds-icon_small" size="small" alternativeText="rows"/>
+                                            <span class="slds-assistive-text">Reorder</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="slds-app-launcher__tile-body" onclick="{!c.NavigatetoCustomSetting}">
+                                    <a href="javascript:void(0);" onclick="{!c.NavigatetoCustomSetting}">Custom Setting</a>
+                                    <p>The primary internal Salesforce org.</p>
+                                    <div class="slds-popover slds-popover_tooltip slds-nubbin_top slds-hide" role="tooltip" id="help-5" style="position:absolute;top:100px;left:165px">
+                                        <div class="slds-popover__body"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>     
+        </div>  
+    </lightning:card>
+</aura:component>

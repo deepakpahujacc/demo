@@ -1,0 +1,11 @@
+<aura:component >
+    <aura:attribute name="maxPage" type="Integer" />
+    <aura:method name="callChild" action="{!c.callChildMethod}" />
+    <aura:method name="gotoLastPage" action="{!c.Last}"/>
+    <aura:attribute name="currentPage" type="Integer" />
+       <aura:method name="gotoPrevPagePage" action="{!c.Previous}"/>
+    <lightning:button disabled="{!v.currentPage==1}" label="First" title="Base action" onclick="{! c.First}"/>
+    <lightning:button disabled="{!v.currentPage==1}" label="Previous" title="Base action" onclick="{! c.Previous }"/>
+    <lightning:button disabled="{!v.currentPage==v.maxPage}" label="Next" title="Base action" onclick="{! c.Next }"/>
+    <lightning:button disabled="{!v.currentPage==v.maxPage}" label="Last" title="Base action" onclick="{! c.Last }"/>
+</aura:component>

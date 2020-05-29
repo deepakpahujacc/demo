@@ -1,0 +1,183 @@
+<aura:component controller="customlabelHandler" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    <aura:attribute name="label" type="object"/>
+    <aura:attribute name="toDeleteLabel" type="object"/>
+    <aura:attribute name="headers" type="list" default="['Name','Description','Value']" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:handler event="aura:waiting" action="{!c.showSpinner}"/>
+    <aura:attribute name="Spinner" type="boolean" default="false"/>
+    <aura:handler event="aura:doneWaiting" action="{!c.hideSpinner}"/>
+    <c:customToast aura:id="toastCmp"/>
+    
+    <!-- pagination change -->
+    <aura:attribute name="paginationList" type="Object"/>
+    <aura:attribute name="sortNo" type="Integer" default='10'/>
+    <aura:attribute name="pageSizeList" type="String[]" default="10,20,30,50,100"/>
+    <aura:attribute name="pageNumber" type="Integer" default='1'/>
+    <aura:attribute name="maxPage" type="Integer"/>
+    <aura:handler name="change" value="{!v.pageNumber}" action="{!c.onPagination}"/>
+    
+    <aura:attribute name="sortOrderlabel" type="String" default="asc"/>
+    <aura:attribute name="Asc" type="boolean" default="True"/>
+    <aura:attribute name="labelAsc" type="boolean" default="True"/>
+    
+    <!--loading spinner start... style=Brand Medium (blue dots)-->
+    <aura:if isTrue="{!v.Spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner--brand slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+    <!-- Loading spinner end-->
+    <lightning:card >
+        <div class="slds-page-header">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title">
+                    <div class="slds-media">
+                        <div class="slds-media__figure">
+                            <span class="slds-icon_container slds-icon-standard-opportunity">
+                                <lightning:icon iconName="standard:canvas"/>
+                            </span>
+                        </div>
+                        <div class="slds-media__body">
+                            <div class="slds-page-header__name">
+                                <div class="slds-page-header__name-title">
+                                    <h1>
+                                        <span class="slds-page-header__title slds-truncate" >Custom Labels</span>
+                                    </h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="slds-card__header slds-grid">
+            <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                <div class="slds-media__figure">
+                    <span class="slds-icon_container slds-icon-standard-account" title="Objects">
+                        <lightning:icon iconName="standard:account"/>
+                        <span class="slds-assistive-text">account</span>
+                    </span>
+                </div>
+                <div class="slds-media__body">
+                    <h2 class="slds-card__header-title">
+                        
+                        <span>Fields</span>
+                        
+                    </h2>
+                </div>
+                <div class="slds-no-flex">
+                    <lightning:button class="slds-theme_neutral" variant="neutral" label="Add Row" onclick="{!c.addRow}"></lightning:button>
+                </div>
+            </header>
+        </div>
+        <div class="slds-m-top_small ">
+            <table><tr>
+                <td style="width:3%"><div class="slds-m-top_medium slds-m-left_small">Show</div></td>
+                <td style="width:5%">
+                    <lightning:select name="select1" label='' value="{!v.sortNo}" onchange="{!c.onSortChange}" class="slds-m-left_xx-small">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </lightning:select>
+                </td>
+                <td><div class="slds-m-top_medium slds-m-left_xx-small">Entries</div></td>
+                <td><div class="slds-clearfix">
+                    <div class="slds-float_right slds-m-bottom_x-small slds-m-right_medium">
+                        <p><lightning:input aura:id="searchKey" type="search" name="searchKey" placeholder="Search" onchange="{!c.searchKeyChange}" /></p>
+                    </div>
+                    </div>
+                </td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="slds-m-right_medium slds-m-left_medium">
+            <table class="slds-table slds-table_bordered slds-table_striped">
+                <thead>
+                    <tr class="slds-text-title_caps">
+                        <th>
+                            <div class="slds-truncate" title="Column 1" >S.No</div>
+                        </th>
+                        <th onclick="{!c.sortlabel}">
+                            <div class="slds-truncate" >
+                                Full Name
+                                <span>
+                                    <aura:if isTrue="{!v.labelAsc}">
+                                        <lightning:icon aura:id="Arrow" iconName="utility:arrowdown" size="x-small"
+                                                        alternativeText="Approved" title="Arrow Down" onclick="{!c.sortlabel}" />
+                                        <aura:set attribute="else">
+                                            <lightning:icon iconName="utility:arrowup" size="x-small"
+                                                            alternativeText="arrowup" title="Arrow Up" onclick="{!c.sortlabel}" />
+                                        </aura:set>
+                                    </aura:if>
+                                </span>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="slds-truncate" title="Column 1" >Description</div>
+                        </th>
+                        <th>
+                            <div class="slds-truncate" title="Column 1" >Value</div>
+                        </th>
+                        <th>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <aura:iteration items="{!v.paginationList}" var="h" indexVar="i" >
+                        <tr class="slds-hint-parent">
+                            <td>
+                                <ui:outputNumber value="{!((v.pageNumber*v.sortNo - (v.sortNo-i))+1)}" class="slds-m-left_medium"/>
+                            </td>
+                            <td>
+                                <aura:if isTrue="{!(h.Id != '')}">
+                                    <div class="slds-m-left_medium">
+                                        <ui:outputText value="{!h.Name}" />
+                                    </div>
+                                    <aura:set attribute="else">
+                                        <lightning:input label="Enter Name" type="text" variant="label-hidden" name="{!i}" value="{!h.Name}" placeholder="Enter Name" required ="true" aura:id="expenseform" ></lightning:input>
+                                    </aura:set>
+                                </aura:if>
+                            </td>
+                            <td>
+                                <lightning:input label="Enter Description" type="text" variant="label-hidden" value="{!h.MasterLabel}" placeholder="Enter Description" required ="true" aura:id="expenseform"></lightning:input>
+                            </td>
+                            <td>
+                                <lightning:input label="Enter Value" type="text" variant="label-hidden" value="{!h.Value}" placeholder="Enter Value" required ="true" aura:id="expenseform"></lightning:input>
+                            </td>
+                            <td>
+                                
+                                <a onclick="{!c.removeRow}" data-index="{!i}">
+                                    <lightning:icon variant="error" iconName="utility:delete" class="slds-icon slds-icon_small" size="small" alternativeText="icon"/>
+                                    <span class="slds-assistive-text">Delete Icon</span>
+                                </a>
+                            </td>
+                        </tr>
+                    </aura:iteration>
+                    
+                </tbody>
+            </table>
+            <div><p>Showing Page {!v.pageNumber} of {!v.maxPage} </p></div>
+            
+            <div class="slds-align_absolute-center slds-m-bottom_xx-large" style="height:3.5rem"><c:paginationComponent currentPage="{!v.pageNumber}" maxPage="{!v.maxPage}" aura:id="childComp" /></div>
+        </div>
+        <div class="slds-docked-form-footer slds-m-top_x-small" >
+            
+            
+            <button class="slds-button slds-button_outline-brand" onclick="{!c.cancel}">Cancel</button>&nbsp;
+            <lightning:button variant="brand"
+                              label="Save"
+                              title="Save"
+                              onclick="{!c.createdata}"/>&nbsp;
+            
+            
+        </div>
+        
+    </lightning:card>
+</aura:component>
